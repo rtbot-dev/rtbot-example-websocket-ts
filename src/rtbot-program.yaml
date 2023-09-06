@@ -1,0 +1,53 @@
+apiVersion: v1
+description: |
+  A sample RtBot program that computes Bollinger Bands and 
+  triggers an event whenever the price goes outside the bands
+operators:
+  - type: Input
+    id: in1
+  - type: MovingAverage
+    id: ma1
+    n: 50
+  - type: StandardDeviation
+    id: std1
+    n: 50
+  - type: Scale
+    id: scale1
+    value: 2
+  - type: Plus
+    id: upperBand
+  - type: Minus
+    id: lowerBand
+  - type: Minus
+    id: minus2
+  - type: Minus
+    id: minus3
+  - type: LessThan
+    id: lt1
+    value: 0
+  - type: LessThan
+    id: lt2
+    value: 0
+connections:
+  - from: in1
+    to: ma1
+  - from: in1
+    to: std1
+  - from: std1
+    to: scale1
+  - from: ma1
+    to: upperBand
+    fromPort: o1
+    toPort: i1
+  - from: scale1
+    to: upperBand
+    fromPort: o1
+    toPort: i2
+  - from: ma1
+    to: lowerBand
+    fromPort: o1
+    toPort: i1
+  - from: scale1
+    to: lowerBand
+    fromPort: o1
+    toPort: i2
