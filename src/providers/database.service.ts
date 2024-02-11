@@ -2,20 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, doc, getDoc, setDoc, where, query } from 'firebase/firestore';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import { RtBotProject } from './models/rtibot.models';
+import { RtBotProject } from '../models/rtibot.models';
+import { ConfigService } from 'src/config/config.service';
+import { FIREBASE_CONFIG } from 'src/config/constants';
 //import { parse } from 'yaml';
 
 @Injectable()
-export class RtBotDataBase {
+export class DataBaseService {
 
   app: FirebaseApp;
   secrets: any;
 
-  constructor() {
+  constructor(configService: ConfigService) {
     // - Use you own rtbot.secrets.json to store db access.
-    this.secrets = JSON.parse(readFileSync(join(__dirname, 'rtbot.secrets.json'), 'utf8'));
+    this.secrets = configService.getConfig(FIREBASE_CONFIG);
   };
 
   async connect () {
@@ -34,7 +34,7 @@ export class RtBotDataBase {
     });
   }  
 
-  async GetActivePrograms()  {
+  async GetActiveProjects()  {
     const db = getFirestore(this.app);   
     let scriptList: Array<RtBotProject> = [];
     
@@ -62,7 +62,7 @@ export class RtBotDataBase {
       scriptData.ProjectId = projectSnap.id;
       scriptData.Project = project;
       scriptData.Program = program;
-      scriptData.InputMapping;
+      scriptData.InputMapping = mapping;
       scriptData.Sources = Object.fromEntries(sourcesSnapShot.docs.map(sourceSnap => [sourceSnap.id, sourceSnap.data()]));
 
       scriptList.push(scriptData);
